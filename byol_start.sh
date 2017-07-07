@@ -64,8 +64,8 @@ done
 
 ## Get the Default Gateway IP address of this device.
 
-mydg=$(echo ${externalip%?})
-mydg="${mydg}1"
+mydg=$(echo ${internalip%.*})
+mydg="${mydg}.1"
 
 lastchar=$(echo ${hostname: -1})
 
