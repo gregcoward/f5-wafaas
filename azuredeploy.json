@@ -204,23 +204,23 @@
     },
     "templateLocationPrefix": "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/",
     "bigipHash": {
-      "0": "[concat(variables('templateLocationPrefix'),'three_nic_bigip_vm.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "1": "[concat(variables('templateLocationPrefix'),'four_nic_bigip_vm.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "2": "[concat(variables('templateLocationPrefix'),'five_nic_bigip_vm.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "3": "[concat(variables('templateLocationPrefix'),'six_nic_bigip_vm.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "4": "[concat(variables('templateLocationPrefix'),'seven_nic_bigip_vm.?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3Djson')]",
-      "5": "[concat(variables('templateLocationPrefix'),'eight_nic_bigip_vm.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]"
+      "0": "[concat(variables('templateLocationPrefix'),'three_nic_bigip_vm.json')]",
+      "1": "[concat(variables('templateLocationPrefix'),'four_nic_bigip_vm.json')]",
+      "2": "[concat(variables('templateLocationPrefix'),'five_nic_bigip_vm.json')]",
+      "3": "[concat(variables('templateLocationPrefix'),'six_nic_bigip_vm.json')]",
+      "4": "[concat(variables('templateLocationPrefix'),'seven_nic_bigip_vm.json')]",
+      "5": "[concat(variables('templateLocationPrefix'),'eight_nic_bigip_vm.json')]"
     },
     "publiciphash" : {
-      "1": "[concat(variables('templateLocationPrefix'),'one_pip.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "2": "[concat(variables('templateLocationPrefix'),'two_pip.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "3": "[concat(variables('templateLocationPrefix'),'three_pip.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "4": "[concat(variables('templateLocationPrefix'),'four_pip.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "5": "[concat(variables('templateLocationPrefix'),'five_pip.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]"
+      "1": "[concat(variables('templateLocationPrefix'),'one_pip.json')]",
+      "2": "[concat(variables('templateLocationPrefix'),'two_pip.json')]",
+      "3": "[concat(variables('templateLocationPrefix'),'three_pip.json')]",
+      "4": "[concat(variables('templateLocationPrefix'),'four_pip.json')]",
+      "5": "[concat(variables('templateLocationPrefix'),'five_pip.json')]"
     },
     "onboardMap" : {
-      "BYOL": "[concat(variables('templateLocationPrefix'),'byol_onboarding.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]",
-      "Hourly": "[concat(variables('templateLocationPrefix'),'hourly_onboarding.json?token=ALSg20oZZTpFMQcW8LLR1w78pc3Ia434ks5ZaRgjwA%3D%3D')]"
+      "BYOL": "[concat(variables('templateLocationPrefix'),'byol_onboarding.json')]",
+      "Hourly": "[concat(variables('templateLocationPrefix'),'hourly_onboarding.json')]"
     }
   },
   "resources": [
