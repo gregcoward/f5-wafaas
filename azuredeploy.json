@@ -350,6 +350,7 @@
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('avsetNamePrefix'))]"
       ],
       "properties": {
@@ -369,6 +370,7 @@
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('avsetNamePrefix'))]",
         "[concat('Microsoft.Resources/deployments/', 'ALBPIPTemplate')]"
       ],
