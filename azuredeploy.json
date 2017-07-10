@@ -180,6 +180,7 @@
   "variables": {
     "avsetNamePrefix": "[concat(parameters('f5Name'),'-avset')]",
     "newStorageAccountName": "[concat(parameters('f5Name'),'store')]",
+    "newDataStorageAccountName": "[concat(parameters('f5Name'),'datastore')]",
     "skuBase": "f5-bigip-virtual-edition-",
     "f5FeatureSetHash": {
       "Good": "good",
@@ -241,6 +242,18 @@
       "name": "[variables('newStorageAccountName')]",
       "tags": {
         "displayName": "StorageAccount"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "properties": {
+        "accountType": "Premium_LRS"
+      }
+    },
+    {
+      "name": "[variables('newDataStorageAccountName')]",
+      "tags": {
+        "displayName": "DataStorageAccount"
       },
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
