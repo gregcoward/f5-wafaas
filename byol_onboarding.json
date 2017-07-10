@@ -19,7 +19,7 @@
     }
   },
   "variables": {
-    "f5CloudLibsTag": "v2.3.0",
+    "f5CloudLibsTag": "v3.2.0",
     "licenseKeys" : "[split(parameters('licenseKeys'),';')]",
     "mgmtNICNamePrefix": "[concat(parameters('f5Name'),'-mgmtnic')]",
     "externalNICNamePrefix": "[concat(parameters('f5Name'),'-externalnic')]",
