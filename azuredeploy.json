@@ -234,8 +234,8 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
       "properties": {
-        "platformUpdateDomainCount": 1,
-        "platformFaultDomainCount": 1
+        "platformUpdateDomainCount": 20,
+        "platformFaultDomainCount": 3
       }
     },
     {
