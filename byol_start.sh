@@ -79,7 +79,7 @@ master="${master}0"
 ## Execute the CloudLibs
 
 /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/onboard.js --output /var/log/onboard.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --hostname ${hostname}.${location}.cloudapp.azure.com --license ${licenseKey} --ntp pool.ntp.org --db tmm.maxremoteloglength:2048 --module ltm:nominal --module asm:nominal --no-reboot --signal ONBOARD_DONE &
-/usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --default-gw ${mydg} --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --signal NETWORK_DONE &
+/usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --signal NETWORK_DONE &
 
 if [ ${cluster} == "Yes" ]; then
     if [ ${lastchar} == "0" ]; then
