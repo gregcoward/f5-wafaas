@@ -1,0 +1,358 @@
+sys application template /Common/f5.asm_log_creator_beta {
+    actions {
+        definition {
+            html-help {
+                <p><strong>Deployment Helper iApp Template</strong></p>
+
+<p>This template creates a set of configuration objects to be consumed </p>
+            }
+            implementation {
+##################################################################################################################################################################################################
+## Example call to REST API to instantiate this iApp, there is no presentation so passing in specific									   														##
+## variables which are called at the start of the template																				   														##	
+##													  																					   														##
+##	curl -sku admin:admin-X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d \																	##
+## '{"name":"'"$appname"'","partition":"Common","strictUpdates":"disabled","template":"/Common/f5.deploy_helper","trafficGroup":"none","lists":[],\												##
+## "variables":[{"name":"variables__deployment","encrypted":"no","value":"'"$deployment"'"},{"name":"variables__type","encrypted":"no","value":"'"$type"'"},\									##
+## {"name":"variables__level","encrypted":"no","value":"'"$level"'"},{"name":"variables__asm_policy_location","encrypted":"no","value":"'"$asm_policy_location"'"},\							##
+## {"name":"variables__custom_asm_policy","encrypted":"no","value":"'"$custom_asm_policy"'"},{"name":"variables__l7dos_level","encrypted":"no","value":"'"$l7dos_level"'"}]}' | jq .			##
+##	{"name":"variables__do_asm","encrypted":"no","value":"'"$do_asm"'"},{"name":"variables__do_l7dos","encrypted":"no","value":"'"$do_l7dos"'"},\												##
+##	{"name":"variables__do_uri_rewrite","encrypted":"no","value":"'"$do_uri_rewrite"'"}																											##
+## 																																		   														##	
+##################################################################################################################################################################################################
+
+	package require iapp 1.1.3
+     
+     proc tmsh_exe { command } {
+          puts $command
+          exec /usr/bin/tmsh -c $command
+     }
+
+     proc format_jsonlist { input } {
+          regsub -all "\"|\\\]|\\\[|\n" $input "" input
+          regsub -all "," $input " " input	
+          return $input
+     }
+     
+     proc format_poolmembers {input} {
+          set poolmembers ""
+          set dataset [split [format_jsonlist $input] " "]
+          foreach item $dataset {
+               set member [split $item ":"]
+               #check to see if this is an ip
+               if {[regexp {^((([2][5][0-5]|([2][0-4]|[1][0-9]|[0-9])?[0-9])\.){3})([2][5][0-5]|([2][0-4]|[1][0-9]|[0-9])?[0-9])$} [lindex $member 0]]} {
+                    append poolmembers "oms-$item \{ address [lindex $member 0] \}"
+               } else {
+                    #must be FQDN - let tmsh do validation
+                    append poolmembers "oms-$item \{ fqdn \{ autopopulate enabled name [lindex $member 0] \} \}"
+               }
+          }	
+          puts "POOL MEMBERS: $poolmembers"
+          return $poolmembers
+     }
+
+     proc do_logging_irules {} {
+     
+          ########workspace iRule Start########
+          set ::workspace_irule {
+when RULE_INIT {
+     # SOL14544 workaround 
+     upvar #0 tcl_platform static::tcl_platform
+} ;  #end of event RULE_INIT
+
+when CLIENT_ACCEPTED {
+     set buf "\n"
+     TCP::collect
+} ;  #end of event CLIENT_ACCEPTED
+
+when CLIENT_DATA {
+     set source "bigip.log"
+     if {[string length $buf] == 0} { set buf "\n" }   
+            
+     append buf [TCP::payload]
+         
+     TCP::payload replace 0 [TCP::payload length] ""
+     TCP::collect
+     #Note: do NOT call TCP::release here, because that will reset
+     #the TCP connection since we don't have a pool.  If we just
+     #keep calling TCP:::collect alone we can go on indefinitely
+     while {[set dex [string first "\n" $buf]] >= 0 } {
+          if {[set d2x [string first "\n" $buf [expr {$dex + 1}]]] < 0} {
+               #unsure buf contains a complete message yet
+               break
+          }
+          
+          #pull first complete message from buf
+          set cefmsg [string range $buf [expr {$dex +1 }] [expr {$d2x - 1}]]
+          
+          if {[set asm [string first "ASM:unit" $cefmsg]] >= 0}{
+               set cefmsg [string range $cefmsg $asm [string length $cefmsg]]
+          }
+          
+          set buf [string range $buf [expr {$d2x +1 }] end]         
+          
+          set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
+          regsub -all "=\"" $cefmsg "\":\"" msg
+          regsub -all "\"," $msg "\",\"" msg
+          
+          # extract all the info we need to send to OMS
+          set src [findstr $msg "src=" 4 " "]
+          set spt [findstr $msg "spt=" 4 " "]
+          set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
+          set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
+          set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
+          if {[string first "externalId=" $msg] >= 0} {
+               set supportid [findstr $cefmsg "externalId=" 11 " act"]
+          } else {
+               set supportid "N/A"
+          }
+          
+          set remediation_link "https://[expr { $supportid ne "N/A" ? "$static::tcl_platform(machine):8443/dms/policy/win_open_proxy_request.php?id\=&support_id\=${supportid}" : "$static::tcl_platform(machine):8443/dms/policy/frn_illegal_requests.php" }]"         
+          set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
+          set msg "\[\{\"time\":\"$date\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"ASM\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\",\"remediationLink\":\"$remediation_link\"\}\]"
+          
+          set ctx(customer_id) "<workspace>"
+          set ctx(key) "<key>"
+          set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
+          set ctx(path) "https://${ctx(host)}/api/logs"
+          set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
+          
+          set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"          
+          set decoded_key [b64decode $ctx(key)]         
+          set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]          
+          set signed_string [b64encode ${token}]
+          
+          set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"
+          
+          log local0. "FULLPOST: $fullPOST"
+          
+          catch {HSL::send $hslpool $fullPOST} 
+     }
+     
+     #any trailing partial message stays in buf until next packet
+     #arrives or incoming TCP connection is closed
+} ;  #end of event CLIENT_DATA
+
+when CLIENT_CLOSED {
+     #deal with final message in buf
+     if {[set dex [string first "\n" $buf]] >= 1} {
+          set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
+          regsub -all "=\"" $buf "\":\"" msg
+          regsub -all "\"," $msg "\",\"" msg
+          
+          # extract all the info we need to send to OMS
+          set src [findstr $msg "src=" 4 " "]
+          set spt [findstr $msg "spt=" 4 " "]
+          set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
+          set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
+          set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
+          if {[string first "externalId=" $msg] >= 0} {
+               set supportid [findstr $cefmsg "externalId=" 11 " act"]
+               } else {
+               set supportid "N/A"
+          }
+          
+          set msg "\[\{\"time\":\"[clock seconds]\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"$source\",\"sourceType\":\"f5:bigip:log:json\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\"\}\]"
+          
+          set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
+
+          set ctx(customer_id) "<workspace>"
+          set ctx(key) "<key>"
+          set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
+          set ctx(path) "https://${ctx(host)}/api/logs"
+          set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
+          
+          set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"
+          log local0. "STRING TO SIGN: $string_to_sign"
+          
+          set decoded_key [b64decode $ctx(key)]
+          
+          set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]
+          set signed_string [b64encode ${token}]
+          
+          set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"	
+          
+          log local0. "FULLPOST: $fullPOST"
+          
+          catch {HSL::send $hslpool $fullPOST} 
+     }
+} ; #end of event CLIENT_CLOSED
+          }
+          ########workspace iRule End########
+                   
+          ########workspace Part 2iRule Start########	
+          set ::workspace2_irule {
+when HTTP_REQUEST {
+    log local0. "Request:[HTTP::uri]"
+    foreach aHeader [HTTP::header names] {
+      log local0. "$aHeader: [HTTP::header value $aHeader]"
+   }
+}
+when HTTP_RESPONSE {
+    log local0. "Response: [HTTP::status]"
+    foreach aHeader [HTTP::header names] {
+      log local0. "$aHeader: [HTTP::header value $aHeader]"
+    }
+    HTTP::collect
+}
+when HTTP_RESPONSE_DATA {
+   log local0. "PAYLOAD: [HTTP::payload]"
+   HTTP::respond 200 content [HTTP::payload]
+   HTTP::release
+}
+          }
+          ########workspace Part 2 iRule End########	
+     }
+
+	proc deploy_security_logging {} {
+          package require iapp 1.1.3
+          
+          puts "Configuring Security Logging - In Progress"
+          
+          # Set variables; if they don't exist, use defaults
+          set app $tmsh::app_name 
+          set appservice "app-service none"
+          set is_v12_0 [iapp::tmos_version <= 12.0]
+          set is_v12_1 [iapp::tmos_version >= 12.1]   
+          set workspace [expr { [info exists ::variables__workspace] ? "$::variables__workspace" : "none" }]
+          set key [expr { [info exists ::variables__key] ? "$::variables__key" : "none" }]
+          set log_profiles ""
+          
+          # create iRules
+          do_logging_irules
+          
+          # point to workspace iRule virtual server via this pool
+          iapp::conf create ltm pool ${app}_logging_encrypt \{ members replace-all-with \{ 255.255.255.254:41001 \{ address 255.255.255.254 \} \} monitor tcp \}
+         
+          iapp::conf create ltm pool ${app}_logging_offbox \{ members replace-all-with \{ [format_poolmembers ${workspace}.ods.opinsights.azure.com:443] \} monitor tcp \}
+                   
+          # DoS log profile ultimately points to this pool
+          iapp::conf create ltm pool ${app}_logging_dos \{ members replace-all-with \{ 255.255.255.254:1001 \{ address 255.255.255.254 \} \} monitor tcp \}
+          
+          # create log destinations
+          iapp::conf create sys log-config destination remote-high-speed-log ${app}_ld_logging_offbox \{ pool-name ${app}_logging_dos \}
+          
+          iapp::conf create sys log-config destination arcsight ${app}_ld_logging_offbox_cef \{  forward-to ${app}_ld_logging_offbox \}
+          
+          iapp::conf create sys log-config destination remote-syslog ${app}_ld_logging_offbox_remotesyslog  format rfc5424 default-facility local0 default-severity notice remote-high-speed-log ${app}_ld_logging_offbox
+          
+          # create log configs
+          iapp::conf create sys log-config publisher ${app}_lp_logging_offbox \{ destinations replace-all-with \{ ${app}_ld_logging_offbox_cef \{ \} \} \}
+          
+          iapp::conf create sys log-config publisher ${app}_lp_logging_system_offbox \{ destinations replace-all-with \{ ${app}_ld_logging_offbox_remotesyslog \{ \} \} \}
+
+          # create SSL cert for logging virtual server SSL
+          catch { tmsh_exe "create sys crypto key ${app}_logging_offbox_ssl_encrypt_cert gen-certificate common-name OMS_Encrypted_Logging country US lifetime 3650" }
+          
+          set map "
+               <hsl_pool> ${app}_logging_encrypt
+               <workspace> $workspace
+               <key> $key
+          "
+          set workspace_rule [string map $map $::workspace_irule]
+          
+          iapp::conf create ltm rule ${app}_ir-oms \{  $workspace_rule \}
+          
+          iapp::conf create ltm rule ${app}_ir-oms-responder \{  $::workspace2_irule \}
+          
+          # TCP profile with a short idle time-out to force the last ASM event message out of the Event Hub iRule buffer
+          iapp::conf create ltm profile tcp ${app}_logging_tcp \{ defaults-from tcp idle-timeout 15 \}
+          
+          iapp::conf create ltm profile server-ssl ${app}_pr_sslserver_encrypt_logging_offbox \{ cert ${app}_logging_offbox_ssl_encrypt_cert.crt defaults-from serverssl-insecure-compatible key ${app}_logging_offbox_ssl_encrypt_cert.key \}
+          
+          iapp::conf create ltm virtual ${app}_logging_offbox_hsl-convert \{  destination 255.255.255.254:1001 ip-protocol tcp mask 255.255.255.255 source 0.0.0.0/0 profiles replace-all-with \{ ${app}_logging_tcp \} rules \{${app}_ir-oms \}\}
+          
+          iapp::conf create ltm virtual ${app}_logging_offbox_encrypt \{  destination 255.255.255.254:41001 ip-protocol tcp mask 255.255.255.255 pool ${app}_logging_offbox profiles replace-all-with \{ http \{\} oneconnect \{\} ${app}_pr_sslserver_encrypt_logging_offbox \{ context serverside \} tcp \{ \} \} source 0.0.0.0/0 source-address-translation \{ type automap \} rules \{ ${app}_ir-oms-responder \}\}
+          
+          if { $is_v12_0 }  {
+               # combined remote and local logging for 12.0
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_logging_offbox application replace-all-with \{ ${app}_lp_asm_logging_offbox \{ local-storage enabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage arcsight servers replace-all-with \{ 255.255.255.254:1001 \{ \} \} \} \}]         
+          } else {
+               # remote logging
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_logging_offbox application replace-all-with \{ ${app}_lp_asm_logging_offbox \{ local-storage disabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage arcsight servers replace-all-with \{ 255.255.255.254:1001 \{ \} \} \} \}]
+               
+               # local logging (12.1 does not support local and remote logging on the same profile)
+               append log_profiles [iapp::conf create security log profile ${app}_lp_asm_logging_local application replace-all-with \{ ${app}_lp_asm_logging_local \{ local-storage enabled filter replace-all-with \{ protocol \{ values replace-all-with \{ all \} \} request-type \{ values replace-all-with \{ illegal-including-staged-signatures \} \} search-all \{ \} \} remote-storage none \} \}]
+          }
+     
+          # l7dos logging
+          append log_profiles [iapp::conf create security log profile ${app}_lp_l7dos_logging_offbox \{ dos-application replace-all-with \{ ${app}_lp_l7dos_logging_offbox \{ local-publisher local-db-publisher remote-publisher ${app}_lp_logging_offbox \} \} \}]	
+          
+          puts "Log profiles configured: $log_profiles"
+          
+          return $log_profiles
+          
+          puts "Configuring Security Logging - OK"		
+	}
+
+	iapp::template start
+	
+     deploy_security_logging
+
+	puts "Deploying... Finished."
+     
+	iapp::template stop
+            }
+            macro {
+            }
+            presentation {
+                include "/Common/f5.apl_common"
+
+section intro {
+
+        # APL choice values may be set even if the optional
+        # clause is not true. This trick is useful for setting
+        # values that APL otherwise would not have access to.
+        # Here, system provisioning values are recalled, and later
+        # used to customize messages displayed within the template.
+        optional ( "HIDE" == "THIS" ) {
+            choice asm_provisioned tcl {
+                return [expr {[iapp::get_provisioned asm] ? "yes" : "no"}]
+            }
+            choice afm_allowed tcl {
+                return [expr { [iapp::get_provisioned afm] ? "yes" : "no"}]
+            }
+            choice analytics_provisioned tcl {
+                return [expr {[iapp::get_provisioned avr] ? "yes" : "no"}]
+            }
+            choice is_admin tcl {
+                return [expr { [iapp::get_user -is_admin] ? "yes" : "no"}]
+            }
+            choice is_v11_6 tcl {
+                return [expr {[iapp::tmos_version >= 11.6] ? "yes" : "no"}]
+            }
+		  choice is_v12_1 tcl {
+                return [expr {[iapp::tmos_version >= 12.1] ? "yes" : "no"}]
+            }
+            choice is_v13_0 tcl {
+                return [expr {[iapp::tmos_version >= 13.0] ? "yes" : "no"}]
+            }
+        }
+    }
+section variables {
+     string workspace required
+     string key required
+}
+	text {
+
+		intro "Azure WAF Log Profile Creator"
+          
+          variables "Azure OMS"
+          variables.workspace "Enter the Azure OMS workspace ID:"
+          variables.key "Enter the primary or secondary access key for the Azure OMS workspace:"
+
+	}
+            }
+            role-acl { admin manager resource-admin }
+            run-as none
+        }
+    }
+    description none
+    ignore-verification false
+    requires-bigip-version-max none
+    requires-bigip-version-min 12.0
+    requires-modules none
+    signing-key none
+    tmpl-checksum none
+    tmpl-signature none
+}
