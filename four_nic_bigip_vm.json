@@ -53,7 +53,7 @@
     "internalNICNamePrefix": "[concat(parameters('f5Name'),'-internalnic')]",
     "additionNICNamePrefix": "[concat(parameters('f5Name'),'-nic')]",
     "newStorageAccountName": "[concat(parameters('f5Name'),'store')]",
-    "newDataStorageAccountName": "[concat(parameters('f5Name'),'datastore')]",
+    "newDiagStorageAccountName": "[concat(parameters('f5Name'),'diagstore')]",
     "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
     "subnet-idMGMT": "[concat(variables('vnetID'),'/subnets/',parameters('mgmtSubnetName'))]",
     "subnet-idExternal": "[concat(variables('vnetID'),'/subnets/',parameters('externalSubnetName'))]",
@@ -322,7 +322,7 @@
         "diagnosticsProfile": {
             "bootDiagnostics": {
                 "enabled": true, 
-                "storageUri": "[concat('http://',variables('newDataStorageAccountName'),'.blob.core.windows.net')]"
+                "storageUri": "[concat('http://',variables('newDiagStorageAccountName'),'.blob.core.windows.net')]"
             }
         }                
       }
