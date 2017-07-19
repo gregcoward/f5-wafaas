@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dnsLabel": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access the Web Application Firewalls for management."
+      }
+    }
+  },
+  "variables": {    
+    "workspaceName": "[concat(parameters('dnsLabel'),'-ws')]",
+    "Security": {
+      "Name": "[Concat('Security', '(', variables('workspaceName'), ')')]",
+      "GalleryName": "Security"
+    },
+    "NetworkMonitoring": {
+      "Name": "[Concat('NetworkMonitoring', '(', variables('workspaceName'), ')')]",
+      "GalleryName": "NetworkMonitoring"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-04-26-preview",
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "name": "[variables('workspaceName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "Name": "Free"
+        },
+        "retentionInDays": 0
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-11-01-preview",
+          "name": "f5Waf_CL Query",
+          "type": "savedSearches",
+          "dependsOn": [
+            "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+          ],
+          "properties": {
+            "Category": "Security",
+            "ETag": "*",
+            "DisplayName": "WAF Alert Instance Count",
+            "Query": "Type=f5Waf_CL | measure count() as SecurityRecords by TimeGenerated | display linechart",
+            "Version": 1
+          }
+        },
+        {
+          "apiVersion": "2015-11-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[variables('Security').Name]",
+          "type": "Microsoft.OperationsManagement/solutions",
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('Security').Name)]",
+          "dependsOn": [
+            "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+          ],
+          "properties": {
+            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+          },
+          "plan": {
+            "name": "[variables('Security').Name]",
+            "publisher": "Microsoft",
+            "product": "[Concat('OMSGallery/', variables('Security').GalleryName)]",
+            "promotionCode": ""
+          }
+        },
+        {
+          "apiVersion": "2015-11-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[variables('NetworkMonitoring').Name]",
+          "type": "Microsoft.OperationsManagement/solutions",
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationsManagement/solutions/', variables('NetworkMonitoring').Name)]",
+          "dependsOn": [
+            "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+          ],
+          "properties": {
+            "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
+          },
+          "plan": {
+            "name": "[variables('NetworkMonitoring').Name]",
+            "publisher": "Microsoft",
+            "product": "[Concat('OMSGallery/', variables('NetworkMonitoring').GalleryName)]",
+            "promotionCode": ""
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {   
+    "workspaceName": {
+      "value": "[reference(concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName')), '2015-11-01-preview').customerId]",
+      "type": "string"
+    },
+    "workspaceKey": { 
+      "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspaceName')), '2015-11-01-preview').primarySharedKey]", 
+      "type" : "string" 
+    }
+  }
+}

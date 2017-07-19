@@ -174,7 +174,7 @@
         "sku": {
           "Name": "Free"
         },
-    "retentionInDays": 0
+        "retentionInDays": 0
       },
       "resources": [
         {

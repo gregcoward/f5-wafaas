@@ -163,8 +163,9 @@
         "enableIPForwarding": true,
         "ipConfigurations": [
           {
-            "name": "ipconfig",
+            "name": "ipconfig0",
             "properties": {
+              "primary": true,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
