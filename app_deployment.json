@@ -27,12 +27,6 @@
         "description": "Password to login to the Web Application Firewall."
       }
     },
-    "dnsLabel": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Public IP used to access the Web Application Firewalls for management."
-      }
-    },
     "externalSubnetName": {
       "type": "string"
     },
@@ -62,6 +56,18 @@
       "defaultValue": "80",
       "metadata": {
         "description": "If deploying an HTTP application, the port on which your service listens for unencrypted traffic. This field is not required when deploying https only."
+      }
+    },
+    "workspaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the OMS Workspace to log too."
+      }
+    },
+    "workspaceKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The key for the OMS Workspace."
       }
     },
     "applicationType": {
@@ -97,16 +103,12 @@
     }
   },
   "variables": {
-    "f5CloudLibsTag": "v3.2.0",
     "externalNICNamePrefix": "[concat(parameters('f5Name'),'-externalnic')]", 
     "subnet-idExternal": "[concat(variables('vnetID'),'/subnets/',parameters('externalSubnetName'))]",
-    "wafNamePrefix": "[concat(parameters('dnsLabel'),'-waf')]",
     "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('f5Name'),'-externalnsg'))]",
     "loadBalancerName": "[concat(parameters('f5Name'),'-ALB')]",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
-    "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
-    "singleQuote": "'",
-    "commandArgs": "[concat('-m ', parameters('applicationProtocols'), ' -d ', parameters('deploymentName'), ' -n ', parameters('applicationAddress'), ' -h ', parameters('applicationPort'), ' -t ', toLower(parameters('applicationType')), ' -l ', toLower(parameters('blockingLevel')), ' -a ', parameters('customPolicy'), ' -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'))]"
+    "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
   },
   "resources": [
     {
@@ -169,13 +171,9 @@
         "type": "CustomScript",
         "typeHandlerVersion": "2.0",
         "settings": {
-          "fileUris": [
-            "[concat('https://raw.githubusercontent.com/F5Networks/f5-cloud-libs/', variables('f5CloudLibsTag'), '/scripts/azure/runScripts.js')]",
-            "[concat('https://api.github.com/repos/F5Networks/f5-cloud-libs/tarball/', variables('f5CloudLibsTag'))]"
-          ]
-        },
+          "fileUris": []},
         "protectedSettings": {
-             "commandToExecute": "[concat('f5-rest-node ./runScripts.js --log-level debug --tag ', variables('f5CloudLibsTag'), ' --onboard \" --output /var/log/onboard.log --log-level debug --host ', concat(variables('ipAddress'), 4), ' -u admin -p ', parameters('adminPassword'), ' --hostname ', concat(variables('wafNamePrefix'), 0, '.azuresecurity.com'), ' --set-password admin:', parameters('adminPassword'), ' --license ', parameters('licenseKey1'), ' --db provision.1nicautoconfig:disable --db tmm.maxremoteloglength:2048 --module ltm:nominal --module asm:nominal --module afm:none --update-sigs --tz UTC --signal ONBOARD_DONE \" --script \" --wait-for ONBOARD_DONE --output /var/log/runScript.log --log-level debug --url http://cdn-prod-ore-f5.s3-website-us-west-2.amazonaws.com/product/blackbox/staging/azure/deploy_waf_rc.sh --cl-args ', variables('singleQuote'), variables('commandArgs'), ' -w ', reference(concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName')), '2015-11-01-preview').customerId, ' -k ', listKeys(resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspaceName')), '2015-11-01-preview').primarySharedKey, variables('singleQuote'), '\"')]"
+             "commandToExecute": "[concat('/bin/bash /config/deployment.sh ','-m ', parameters('applicationProtocols'), ' -d ', parameters('deploymentName'), ' -n ', parameters('applicationAddress'), ' -h ', parameters('applicationPort'), ' -s https', ' -t ', toLower(parameters('applicationType')), ' -l ', toLower(parameters('blockingLevel')), ' -a ', parameters('customPolicy'), ' -w ', parameters('workspaceName'), ' -k ', parameters('workspaceKey'), ' -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', reference(resourceId('Microsoft.Network/networkInterfaces',concat(variables('externalNICNamePrefix'), parameters('f5Number')),'2016-09-01').ipConfigurations[1].properties.privateIPAddress))]"
         }
       }
      }
