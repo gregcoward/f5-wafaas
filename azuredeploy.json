@@ -180,7 +180,7 @@
   "variables": {
     "avsetNamePrefix": "[concat(parameters('f5Name'),'-avset')]",
     "newStorageAccountName": "[concat(parameters('f5Name'),'store')]",
-    "newDataStorageAccountName": "[concat(parameters('f5Name'),'datastore')]",
+    "newDiagStorageAccountName": "[concat(parameters('f5Name'),'diagstore')]",
     "skuBase": "f5-bigip-virtual-edition-",
     "f5FeatureSetHash": {
       "Good": "good",
@@ -251,7 +251,7 @@
       }
     },
     {
-      "name": "[variables('newDataStorageAccountName')]",
+      "name": "[variables('newDiagStorageAccountName')]",
       "tags": {
         "displayName": "DataStorageAccount"
       },
@@ -350,7 +350,7 @@
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newDiagStorageAccountName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('avsetNamePrefix'))]"
       ],
       "properties": {
@@ -370,7 +370,7 @@
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', variables('newStorageAccountName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('newDataStorageAccountName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('newDiagStorageAccountName'))]",
         "[concat('Microsoft.Compute/availabilitySets/', variables('avsetNamePrefix'))]",
         "[concat('Microsoft.Resources/deployments/', 'ALBPIPTemplate')]"
       ],
