@@ -8,11 +8,17 @@
         "description": "A unique name for this deployment."
       }
     },
-    "f5Number": {
-      "type": "int"
+    "namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "This name will be used as the prefix for all objects."
+      }
     },
-    "f5Name": {
-      "type": "string"
+    "f5Number": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of the BIG-IP you want to run this deployment on."
+      }
     },
     "adminUsername": {
       "type": "string",
@@ -26,14 +32,14 @@
       "metadata": {
         "description": "Password to login to the Web Application Firewall."
       }
-    },
-    "externalSubnetName": {
-      "type": "string"
-    },
+    },    
     "vnetResourceGroupName": {
       "type": "string"
     },
     "vnetName": {
+      "type": "string"
+    },
+    "externalSubnetName": {
       "type": "string"
     },
     "applicationProtocols": {
@@ -103,10 +109,10 @@
     }
   },
   "variables": {
-    "externalNICNamePrefix": "[concat(parameters('f5Name'),'-externalnic')]", 
+    "externalNICNamePrefix": "[concat(parameters('namePrefix'),'-externalnic')]", 
     "subnet-idExternal": "[concat(variables('vnetID'),'/subnets/',parameters('externalSubnetName'))]",
-    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('f5Name'),'-externalnsg'))]",
-    "loadBalancerName": "[concat(parameters('f5Name'),'-ALB')]",
+    "nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups/',concat(parameters('namePrefix'),'-externalnsg'))]",
+    "loadBalancerName": "[concat(parameters('namePrefix'),'-ALB')]",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
     "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
   },
@@ -148,23 +154,17 @@
                 "id": "[variables('subnet-idExternal')]"
               }        
             }
-          },
-          {
-            "name": "ipconfig2",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnet-idExternal')]"
-              }        
-            }
           }
         ]
       }
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('f5Name'),parameters('f5Number'),'/start')]",
+      "name": "[concat(parameters('namePrefix'),parameters('f5Number'),'/start')]",
       "apiVersion": "2016-03-30",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('externalNICNamePrefix'), parameters('f5Number'))]"
+      ],
       "location": "[resourceGroup().location]",
       "properties": {
         "publisher": "Microsoft.Azure.Extensions",
