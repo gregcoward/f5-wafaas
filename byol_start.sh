@@ -85,6 +85,18 @@ master="${master}0"
 /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/onboard.js --output /var/log/onboard.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --hostname ${hostname}.${location}.cloudapp.azure.com --license ${licenseKey} --ntp pool.ntp.org --db tmm.maxremoteloglength:2048 --module ltm:nominal --module asm:nominal --no-reboot --signal ONBOARD_DONE &
 /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --default-gw ${mydg} --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --route name:apiroute, gw:${mgmtdg}, network:168.63.129.16/32 --signal NETWORK_DONE &
 
+## Configure Clustering
+
+if [ ${cluster} == "Yes" ]; then
+    if [ ${lastchar} == "0" ]; then
+        /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/cluster.js --wait-for NETWORK_DONE --output /var/log/cluster.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --config-sync-ip ${syncip} --create-group --device-group Sync --sync-type sync-only --device ${hostname}.${location}.cloudapp.azure.com --auto-sync --asm-sync --save-on-auto-sync &
+    else
+        mastermgmtip=$(ping -c 1 ${master} | awk -F'[ :]' 'NR==2 { print $4 }')
+        /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/cluster.js --wait-for NETWORK_DONE --output /var/log/cluster.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --config-sync-ip ${syncip} --join-group --remote-host ${mastermgmtip} --remote-user admin --remote-password-url file:///config/cloud/passwd --remote-port ${port} --device-group Sync --sync &
+    fi
+fi
+wait
+
 ##Install iApps
 
 for template in f5.http.v1.2.0rc4.tmpl f5.policy_creator_beta.tmpl f5.asm_log_creator_beta.tmpl
@@ -97,15 +109,6 @@ do
   sleep 10
 done
 
-## Configure Clustering
-
-if [ ${cluster} == "Yes" ]; then
-    if [ ${lastchar} == "0" ]; then
-        /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/cluster.js --wait-for NETWORK_DONE --output /var/log/cluster.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --config-sync-ip ${syncip} --create-group --device-group Sync --sync-type sync-only --device ${hostname}.${location}.cloudapp.azure.com --auto-sync --asm-sync --save-on-auto-sync &
-    else
-        mastermgmtip=$(ping -c 1 ${master} | awk -F'[ :]' 'NR==2 { print $4 }')
-        /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/cluster.js --wait-for NETWORK_DONE --output /var/log/cluster.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --config-sync-ip ${syncip} --join-group --remote-host ${mastermgmtip} --remote-user admin --remote-password-url file:///config/cloud/passwd --remote-port ${port} --device-group Sync --sync &
-    fi
-fi
 wait
+
 rm -f /config/cloud/passwd
