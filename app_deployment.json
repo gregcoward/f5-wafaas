@@ -160,7 +160,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('namePrefix'),parameters('f5Number'),'/start')]",
+      "name": "[concat(parameters('namePrefix'),parameters('f5Number'),'/',parameters('deploymentName'))]",
       "apiVersion": "2016-03-30",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('externalNICNamePrefix'), parameters('f5Number'))]"
