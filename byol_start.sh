@@ -86,11 +86,12 @@ master="${master}0"
 
 for template in f5.http.v1.2.0rc4.tmpl f5.policy_creator_beta.tmpl f5.asm_log_creator_beta.tmpl
 do
-     response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/config -d '{"command": "load","name": "merge","options": [ { "file": "/var/lib/waagent/custom-script/download/0/"${template}"" } ] }' -o /dev/null)
-     if [[ ${response_code} != 200  ]]; then
-          echo "Failed to install iApp template; exiting with response code ${response_code}"
-     fi
-     sleep 10
+  mv /var/lib/waagent/custom-script/download/0/${template} /config/${template}
+  response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/config -d '{"command": "load","name": "merge","options": [ { "file": "/config/'${template}'" } ] }' -o /dev/null)
+  if [[ ${response_code} != 200  ]]; then
+    echo "Failed to install iApp template; exiting with response code ${response_code}"
+  fi
+  sleep 10
 done
 
 ## Configure Clustering
