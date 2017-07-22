@@ -191,16 +191,12 @@
       "BYOL": "[concat(variables('skuBase'),variables('f5FeatureSetHash')[parameters('f5FeatureSet')],'-byol')]",
       "Hourly": "[concat(variables('skuBase'),parameters('f5ThroughPutLevel'),'-',variables('f5FeatureSetHash')[parameters('f5FeatureSet')],'-hourly')]"
     },
-    "f5version12": {
-      "BYOL": "1",
-      "Hourly": "2"
-    },
     "f5Offer": {
       "BYOL": "f5-big-ip",
       "Hourly": "f5-big-ip-hourly"
     },
     "f5version": {
-      "12.1.2": "[concat('12.1.2',variables('f5version12')[parameters('f5LicenseType')])]",
+      "12.1.2": "12.1.24",
       "13.0.0": "13.0.020"
     },
     "templateLocationPrefix": "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/",
