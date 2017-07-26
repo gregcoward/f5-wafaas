@@ -197,7 +197,7 @@
     },
     "f5version": {
       "12.1.2": "12.1.24",
-      "13.0.0": "13.0.020"
+      "13.0.0": "13.0.021"
     },
     "templateLocationPrefix": "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/",
     "bigipHash": {
