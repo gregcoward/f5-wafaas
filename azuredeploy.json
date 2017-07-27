@@ -412,7 +412,8 @@
           "numberOFBIGIPs": { "value": "[parameters('numberOFBIGIPs')]" },
           "licenseKeys": { "value": "[parameters('licenseKeys')]" },
           "adminPassword": { "value": "[parameters('adminPassword')]" },
-          "cluster": { "value": "[parameters('cluster')]" }
+          "cluster": { "value": "[parameters('cluster')]" },
+          "f5version": { "value": "[parameters('f5Version')]"}
         }
       }
     }

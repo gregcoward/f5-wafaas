@@ -34,7 +34,7 @@
 ## sync IP address
 ## internal IP address
 
-while getopts ":c:e:h:l:k:m:o:s:u:" opt; do
+while getopts ":c:e:h:l:k:m:o:s:u:v:" opt; do
   case $opt in
     c)
       cluster=$OPTARG
@@ -63,6 +63,9 @@ while getopts ":c:e:h:l:k:m:o:s:u:" opt; do
     u)
       internalip=$OPTARG
       ;;
+    v)
+      version=$OPTARG
+      ;;
   esac
 done
 
@@ -83,7 +86,14 @@ master="${master}0"
 ####Onboard and configure Networking
 
 /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/onboard.js --output /var/log/onboard.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --hostname ${hostname}.${location}.cloudapp.azure.com --license ${licenseKey} --ntp pool.ntp.org --db tmm.maxremoteloglength:2048 --module ltm:nominal --module asm:nominal --no-reboot --signal ONBOARD_DONE &
-/usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --default-gw ${mydg} --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --route name:apiroute, gw:${mgmtdg}, network:168.63.129.16/32 --signal NETWORK_DONE &
+
+
+## Fix for v12 not reporting success for failure to the Azure API
+if [ ${version} == "12.1.2" ]; then
+  /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --default-gw ${mydg} --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --route name:apiroute, gw:${mgmtdg}, network:168.63.129.16/32 --signal NETWORK_DONE &
+else
+  /usr/bin/f5-rest-node /config/cloud/f5-cloud-libs/scripts/network.js --wait-for ONBOARD_DONE --output /var/log/network.log --log-level debug --host ${mgmtip} --port ${port} -u admin --password-url file:///config/cloud/passwd --default-gw ${mydg} --vlan name:external,nic:1.1 --vlan name:internal,nic:1.2 --vlan name:sync,nic:1.3 --self-ip name:external_ip,address:${externalip},vlan:external --self-ip name:internal_ip,address:${internalip},vlan:internal --self-ip name:sync_ip,address:${syncip},vlan:sync --signal NETWORK_DONE &
+fi
 
 ## Configure Clustering
 
