@@ -116,5 +116,9 @@ do
 done
 
 wait
-route add 168.63.129.16/32 gw ${mgmtdg}
+
+## Fix for v12 API disconnect
+if [ ${version} == "12.1.2" ]; then
+  route add 168.63.129.16/32 gw ${mgmtdg}
+fi
 rm -f /config/cloud/passwd
