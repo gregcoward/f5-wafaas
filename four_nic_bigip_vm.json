@@ -327,5 +327,11 @@
         }                
       }
     }
-  ]
+  ],
+  "outputs": {
+    "managementurl": {
+      "type": "string",
+      "value": "[concat('https://',reference(resourceId('Microsoft.Network/publicIPAddresses/',concat(parameters('f5Name'),'mgmt0')),'2015-05-01-preview').dnsSettings.fqdn)]"
+    }
+  }
 }
