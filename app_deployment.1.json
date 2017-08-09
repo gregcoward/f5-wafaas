@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentName": {
+      "type": "string"
+    },
+    "namePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "This name will be used as the prefix for all objects."
+      }
+    },
+    "f5Number": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of the BIG-IP you want to run this deployment on."
+      }
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "newVIP": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "http"
+    },
+    "appFQDN": {
+      "type": "string"
+    },
+    "appPort": {
+      "type": "string"
+    },
+    "appType": {
+      "type": "string",
+      "defaultValue": "linux",
+      "allowedValues": [
+        "linux",
+        "windows"
+      ]
+    },
+    "appLevel": {
+      "type": "string",
+      "defaultValue": "medium",
+      "allowedValues": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('namePrefix'),parameters('f5Number'),'/byol_start')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "settings": {
+          "fileUris": [             
+          ]
+        },
+      "protectedSettings": {
+          "commandToExecute": "[concat('/bin/bash -x /var/lib/waagent/custom-script/download/0/deployment.sh -m ', parameters('mode'), ' -d ', parameters('deploymentName'), ' -n ', parameters('appFQDN'), ' -h ', parameters('appPort'), ' -s https -t ', parameters('appType'), ' -l ',parameters('appLevel'),' -a NOT_SPECIFIED -w 0f676980-a32a-47a8-82c4-b84b24a938d3 -k YZi6RA5jCqWV8oTvYaGSHNPzJc+9vHNjcdZzEJPMNhj+0rWfgOqPJB1YUuYw3nLBh0XGRKPPlroYvRANZVeygQ== -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', parameters('newVIP'))]"
+        }
+        }
+      }
+  ],
+  "outputs": {
+  }
+}

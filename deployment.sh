@@ -27,14 +27,14 @@ vs_https_port="8445"
 #sleep 120
 
 # check for existence of device-group
-response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X GET -H "Content-Type: application/json" https://localhost/mgmt/tm/cm/device-group/~Common~Sync  -o /dev/null)
+response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X GET -H "Content-Type: application/json" https://localhost/mgmt/tm/cm/device-group/~Common~Sync2  -o /dev/null)
 
 if [[ $response_code != 200 ]]; then
      echo "We are one, set device group to none"
      device_group="none"
 else
      echo "We are two, set device group to Sync"
-     device_group="/Common/Sync"
+     device_group="/Common/Sync2"
 fi
 
 # download canned or custom security policy and create accompanying ltm policy

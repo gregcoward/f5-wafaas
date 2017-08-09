@@ -1,0 +1,50 @@
+[
+    {
+        "time": "Mon, 31 Jul 2017 07:03:46 GMT",
+        "host": "f5wafaas020.westus.cloudapp.azure.com",
+        "logSource": "ASM",
+        "bigipVersion": "12.1.2",
+        "sourceIp": "71.6.202.196",
+        "sourcePort": "60000",
+        "reason": "Vulnerability Scan",
+        "action": "Blocked",
+        "supportId": "1420133427503433686",
+        "remediationLink": "https: //f5wafaas020.westus.cloudapp.azure.com:8443/dms/policy/win_open_proxy_request.php?id=&support_id=1420133427503433686"
+    },
+    {
+        "time": "Mon, 31 Jul 2017 10:52:58 GMT",
+        "host": "f5wafaas020.westus.cloudapp.azure.com",
+        "logSource": "ASM",
+        "bigipVersion": "12.1.2",
+        "sourceIp": "123.59.146.153",
+        "sourcePort": "50931",
+        "reason": "HTTP Parser Attack",
+        "action": "Blocked",
+        "supportId": "1420133427503436461",
+        "remediationLink": "https://f5wafaas020.westus.cloudapp.azure.com:8443/dms/policy/win_open_proxy_request.php?id=&support_id=1420133427503436461"
+    },
+    {
+        "time": "Mon, 31 Jul 2017 10:53:24 GMT",
+        "host": "f5wafaas020.westus.cloudapp.azure.com",
+        "logSource": "ASM",
+        "bigipVersion": "12.1.2",
+        "sourceIp": "123.59.146.153",
+        "sourcePort": "39331",
+        "reason": "HTTP Parser Attack",
+        "action": "Blocked",
+        "supportId": "1420133427503436465",
+        "remediationLink": "https://f5wafaas020.westus.cloudapp.azure.com:8443/dms/policy/win_open_proxy_request.php?id=&support_id=1420133427503436465"
+    },
+    {
+        "time": "Tue, 01 Aug 2017 08:13:45 GMT",
+        "host": "f5wafaas020.westus.cloudapp.azure.com",
+        "logSource": "ASM",
+        "bigipVersion": "12.1.2",
+        "sourceIp": "12.219.84.8",
+        "sourcePort": "29182",
+        "reason": "Non-browser Client",
+        "action": "Blocked",
+        "supportId": "1420133427503437521",
+        "remediationLink": "https://f5wafaas020.westus.cloudapp.azure.com:8443/dms/policy/win_open_proxy_request.php?id=&support_id=1420133427503437521"
+    }
+]

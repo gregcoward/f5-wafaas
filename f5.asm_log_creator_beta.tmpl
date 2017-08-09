@@ -55,151 +55,151 @@ sys application template /Common/f5.asm_log_creator_beta {
      
           ########workspace iRule Start########
           set ::workspace_irule {
-when RULE_INIT {
-     # SOL14544 workaround 
-     upvar #0 tcl_platform static::tcl_platform
-} ;  #end of event RULE_INIT
+            when RULE_INIT {
+                # SOL14544 workaround 
+                upvar #0 tcl_platform static::tcl_platform
+            } ;  #end of event RULE_INIT
 
-when CLIENT_ACCEPTED {
-     set buf "\n"
-     TCP::collect
-} ;  #end of event CLIENT_ACCEPTED
+            when CLIENT_ACCEPTED {
+                set buf "\n"
+                TCP::collect
+            } ;  #end of event CLIENT_ACCEPTED
 
-when CLIENT_DATA {
-     set source "bigip.log"
-     if {[string length $buf] == 0} { set buf "\n" }   
-            
-     append buf [TCP::payload]
-         
-     TCP::payload replace 0 [TCP::payload length] ""
-     TCP::collect
-     #Note: do NOT call TCP::release here, because that will reset
-     #the TCP connection since we don't have a pool.  If we just
-     #keep calling TCP:::collect alone we can go on indefinitely
-     while {[set dex [string first "\n" $buf]] >= 0 } {
-          if {[set d2x [string first "\n" $buf [expr {$dex + 1}]]] < 0} {
-               #unsure buf contains a complete message yet
-               break
-          }
-          
-          #pull first complete message from buf
-          set cefmsg [string range $buf [expr {$dex +1 }] [expr {$d2x - 1}]]
-          
-          if {[set asm [string first "ASM:unit" $cefmsg]] >= 0}{
-               set cefmsg [string range $cefmsg $asm [string length $cefmsg]]
-          }
-          
-          set buf [string range $buf [expr {$d2x +1 }] end]         
-          
-          set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
-          regsub -all "=\"" $cefmsg "\":\"" msg
-          regsub -all "\"," $msg "\",\"" msg
-          
-          # extract all the info we need to send to OMS
-          set src [findstr $msg "src=" 4 " "]
-          set spt [findstr $msg "spt=" 4 " "]
-          set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
-          set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
-          set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
-          if {[string first "externalId=" $msg] >= 0} {
-               set supportid [findstr $cefmsg "externalId=" 11 " act"]
-          } else {
-               set supportid "N/A"
-          }
-          
-          set remediation_link "https://[expr { $supportid ne "N/A" ? "$static::tcl_platform(machine):8443/dms/policy/win_open_proxy_request.php?id\=&support_id\=${supportid}" : "$static::tcl_platform(machine):8443/dms/policy/frn_illegal_requests.php" }]"         
-          set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
-          set msg "\[\{\"time\":\"$date\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"ASM\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\",\"remediationLink\":\"$remediation_link\"\}\]"
-          
-          set ctx(customer_id) "<workspace>"
-          set ctx(key) "<key>"
-          set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
-          set ctx(path) "https://${ctx(host)}/api/logs"
-          set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
-          
-          set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"          
-          set decoded_key [b64decode $ctx(key)]         
-          set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]          
-          set signed_string [b64encode ${token}]
-          
-          set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"
-          
-          log local0. "FULLPOST: $fullPOST"
-          
-          catch {HSL::send $hslpool $fullPOST} 
-     }
-     
-     #any trailing partial message stays in buf until next packet
-     #arrives or incoming TCP connection is closed
-} ;  #end of event CLIENT_DATA
+            when CLIENT_DATA {
+                set source "bigip.log"
+                if {[string length $buf] == 0} { set buf "\n" }   
+                        
+                append buf [TCP::payload]
+                    
+                TCP::payload replace 0 [TCP::payload length] ""
+                TCP::collect
+                #Note: do NOT call TCP::release here, because that will reset
+                #the TCP connection since we don't have a pool.  If we just
+                #keep calling TCP:::collect alone we can go on indefinitely
+                while {[set dex [string first "\n" $buf]] >= 0 } {
+                    if {[set d2x [string first "\n" $buf [expr {$dex + 1}]]] < 0} {
+                        #unsure buf contains a complete message yet
+                        break
+                    }
+                    
+                    #pull first complete message from buf
+                    set cefmsg [string range $buf [expr {$dex +1 }] [expr {$d2x - 1}]]
+                    
+                    if {[set asm [string first "ASM:unit" $cefmsg]] >= 0}{
+                        set cefmsg [string range $cefmsg $asm [string length $cefmsg]]
+                    }
+                    
+                    set buf [string range $buf [expr {$d2x +1 }] end]         
+                    
+                    set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
+                    regsub -all "=\"" $cefmsg "\":\"" msg
+                    regsub -all "\"," $msg "\",\"" msg
+                    
+                    # extract all the info we need to send to OMS
+                    set src [findstr $msg "src=" 4 " "]
+                    set spt [findstr $msg "spt=" 4 " "]
+                    set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
+                    set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
+                    set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
+                    if {[string first "externalId=" $msg] >= 0} {
+                        set supportid [findstr $cefmsg "externalId=" 11 " act"]
+                    } else {
+                        set supportid "N/A"
+                    }
+                    
+                    set remediation_link "https://[expr { $supportid ne "N/A" ? "$static::tcl_platform(machine)/dms/policy/win_open_proxy_request.php?id\=&support_id\=${supportid}" : "$static::tcl_platform(machine)/dms/policy/frn_illegal_requests.php" }]"         
+                    set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
+                    set msg "\[\{\"time\":\"$date\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"ASM\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\",\"remediationLink\":\"$remediation_link\"\}\]"
+                    
+                    set ctx(customer_id) "<workspace>"
+                    set ctx(key) "<key>"
+                    set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
+                    set ctx(path) "https://${ctx(host)}/api/logs"
+                    set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
+                    
+                    set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"          
+                    set decoded_key [b64decode $ctx(key)]         
+                    set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]          
+                    set signed_string [b64encode ${token}]
+                    
+                    set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"
+                    
+                    log local0. "FULLPOST: $fullPOST"
+                    
+                    catch {HSL::send $hslpool $fullPOST} 
+                }
+                
+                #any trailing partial message stays in buf until next packet
+                #arrives or incoming TCP connection is closed
+            } ;  #end of event CLIENT_DATA
 
-when CLIENT_CLOSED {
-     #deal with final message in buf
-     if {[set dex [string first "\n" $buf]] >= 1} {
-          set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
-          regsub -all "=\"" $buf "\":\"" msg
-          regsub -all "\"," $msg "\",\"" msg
-          
-          # extract all the info we need to send to OMS
-          set src [findstr $msg "src=" 4 " "]
-          set spt [findstr $msg "spt=" 4 " "]
-          set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
-          set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
-          set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
-          if {[string first "externalId=" $msg] >= 0} {
-               set supportid [findstr $cefmsg "externalId=" 11 " act"]
-               } else {
-               set supportid "N/A"
-          }
-          
-          set msg "\[\{\"time\":\"[clock seconds]\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"$source\",\"sourceType\":\"f5:bigip:log:json\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\"\}\]"
-          
-          set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
+            when CLIENT_CLOSED {
+                #deal with final message in buf
+                if {[set dex [string first "\n" $buf]] >= 1} {
+                    set hslpool [HSL::open -proto TCP -pool "<hsl_pool>"]
+                    regsub -all "=\"" $buf "\":\"" msg
+                    regsub -all "\"," $msg "\",\"" msg
+                    
+                    # extract all the info we need to send to OMS
+                    set src [findstr $msg "src=" 4 " "]
+                    set spt [findstr $msg "spt=" 4 " "]
+                    set reason "[findstr $msg "cs4=" 4 " cs4Label"]"
+                    set F5ASMASCAction "F5ASMASCAction=[findstr $msg "act=" 4 " "]"  
+                    set act [expr { $F5ASMASCAction eq "F5ASMASCAction=blocked" ? "Blocked" : "Detected" } ]
+                    if {[string first "externalId=" $msg] >= 0} {
+                        set supportid [findstr $cefmsg "externalId=" 11 " act"]
+                        } else {
+                        set supportid "N/A"
+                    }
+                    
+                    set msg "\[\{\"time\":\"[clock seconds]\",\"host\":\"$static::tcl_platform(machine)\",\"logSource\":\"$source\",\"sourceType\":\"f5:bigip:log:json\",\"bigipVersion\":\"$static::tcl_platform(osVersion)\",\"sourceIp\":\"$src\",\"sourcePort\":\"$spt\",\"reason\":\"$reason\",\"action\":\"$act\",\"supportId\":\"$supportid\"\}\]"
+                    
+                    set date [clock format [clock seconds] -format "%a, %d %b %Y %H:%M:%S GMT"]
 
-          set ctx(customer_id) "<workspace>"
-          set ctx(key) "<key>"
-          set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
-          set ctx(path) "https://${ctx(host)}/api/logs"
-          set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
-          
-          set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"
-          log local0. "STRING TO SIGN: $string_to_sign"
-          
-          set decoded_key [b64decode $ctx(key)]
-          
-          set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]
-          set signed_string [b64encode ${token}]
-          
-          set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"	
-          
-          log local0. "FULLPOST: $fullPOST"
-          
-          catch {HSL::send $hslpool $fullPOST} 
-     }
-} ; #end of event CLIENT_CLOSED
+                    set ctx(customer_id) "<workspace>"
+                    set ctx(key) "<key>"
+                    set ctx(host) "${ctx(customer_id)}.ods.opinsights.azure.com"
+                    set ctx(path) "https://${ctx(host)}/api/logs"
+                    set ctx(full_path) "${ctx(path)}?api-version=2016-04-01"
+                    
+                    set string_to_sign "POST\n[string length $msg]\napplication/json\nx-ms-date:$date\n/api/logs"
+                    log local0. "STRING TO SIGN: $string_to_sign"
+                    
+                    set decoded_key [b64decode $ctx(key)]
+                    
+                    set token [CRYPTO::sign -alg hmac-sha256 -key $decoded_key $string_to_sign]
+                    set signed_string [b64encode ${token}]
+                    
+                    set fullPOST "POST ${ctx(full_path)} HTTP/1.1\nHost: ${ctx(host)}\nContent-Length: [string length $msg]\nContent-Type: application/json\nx-ms-date: $date\nLog-Type: f5Waf\nAuthorization: SharedKey ${ctx(customer_id)}:$signed_string\n\n${msg}"	
+                    
+                    log local0. "FULLPOST: $fullPOST"
+                    
+                    catch {HSL::send $hslpool $fullPOST} 
+                }
+            } ; #end of event CLIENT_CLOSED
           }
           ########workspace iRule End########
                    
           ########workspace Part 2iRule Start########	
           set ::workspace2_irule {
-when HTTP_REQUEST {
-    log local0. "Request:[HTTP::uri]"
-    foreach aHeader [HTTP::header names] {
-      log local0. "$aHeader: [HTTP::header value $aHeader]"
-   }
-}
-when HTTP_RESPONSE {
-    log local0. "Response: [HTTP::status]"
-    foreach aHeader [HTTP::header names] {
-      log local0. "$aHeader: [HTTP::header value $aHeader]"
-    }
-    HTTP::collect
-}
-when HTTP_RESPONSE_DATA {
-   log local0. "PAYLOAD: [HTTP::payload]"
-   HTTP::respond 200 content [HTTP::payload]
-   HTTP::release
-}
+            when HTTP_REQUEST {
+                log local0. "Request:[HTTP::uri]"
+                foreach aHeader [HTTP::header names] {
+                log local0. "$aHeader: [HTTP::header value $aHeader]"
+            }
+            }
+            when HTTP_RESPONSE {
+                log local0. "Response: [HTTP::status]"
+                foreach aHeader [HTTP::header names] {
+                log local0. "$aHeader: [HTTP::header value $aHeader]"
+                }
+                HTTP::collect
+            }
+            when HTTP_RESPONSE_DATA {
+            log local0. "PAYLOAD: [HTTP::payload]"
+            HTTP::respond 200 content [HTTP::payload]
+            HTTP::release
+            }
           }
           ########workspace Part 2 iRule End########	
      }

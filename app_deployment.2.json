@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "deploymentName": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "http"
+    },
+    "appFQDN": {
+      "type": "string",
+      "defaultValue": "www.someapp.cloudapp.azure.com"
+    },
+    "appPort": {
+      "type": "string",
+      "defaultValue": "80"
+    },
+    "appType": {
+      "type": "string",
+      "defaultValue": "linux",
+      "allowedValues": [
+        "linux",
+        "windows"
+      ]
+    },
+    "appLevel": {
+      "type": "string",
+      "defaultValue": "medium",
+      "allowedValues": [
+        "low",
+        "medium",
+        "high"
+      ]
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "name": "[parameters('deploymentName')]",
+      "tags": {
+        "displayName": "Availability Set"
+      },
+      "type": "Microsoft.Compute/availabilitySets",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-05-01-preview",
+      "properties": {
+        "platformUpdateDomainCount": 1,
+        "platformFaultDomainCount": 1
+      }
+    },
+    {
+      "apiVersion": "2016-06-01",
+      "name": "DeploymentCall",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/availabilitySets/', parameters('deploymentName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('https://f5wafaasfunction.azurewebsites.net/api/HttpTriggerPowerShell1?code=c/ijEsUGE71T1pWa7G56DSYa6xla6OuPDBcmlUnlokdjK/wMG4Ddww==&name=', parameters('appFQDN'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
