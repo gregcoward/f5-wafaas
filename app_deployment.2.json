@@ -35,10 +35,13 @@
       ]
     }
   },
-  "variables": {},
+  "variables": {
+    "subscription": "[subscription().subscriptionId]",
+    "resourceGroup": "[resourceGroup().name]"
+  },
   "resources": [
     {
-      "name": "[parameters('deploymentName')]",
+      "name": "[concat('Deployment',parameters('deploymentName'))]",
       "tags": {
         "displayName": "Availability Set"
       },
@@ -52,15 +55,15 @@
     },
     {
       "apiVersion": "2016-06-01",
-      "name": "DeploymentCall",
+      "name": "[concat('DeploymentCall',parameters('deploymentName'))]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat('Microsoft.Compute/availabilitySets/', parameters('deploymentName'))]"
+        "[concat('Microsoft.Compute/availabilitySets/','Deployment',parameters('deploymentName'))]"
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('https://f5wafaasfunction.azurewebsites.net/api/HttpTriggerPowerShell1?code=c/ijEsUGE71T1pWa7G56DSYa6xla6OuPDBcmlUnlokdjK/wMG4Ddww==&name=', parameters('appFQDN'))]",
+          "uri": "[concat('https://f5wafaasfunction.azurewebsites.net/api/HttpTriggerPowerShell1?code=c/ijEsUGE71T1pWa7G56DSYa6xla6OuPDBcmlUnlokdjK/wMG4Ddww==&subname=',variables('subscription'),'&rgname=',variables('resourceGroup'),'&depname=',parameters('deploymentName'),'&mode=',parameters('mode'),'&appfqdn=',parameters('appFQDN'),'&appport=',parameters('appPort'),'&applevel=',parameters('appLevel'),'&apptype=',parameters('appType'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
