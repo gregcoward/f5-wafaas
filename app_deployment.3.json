@@ -21,8 +21,7 @@
       "type": "string"
     }
   },
-  "variables": {
-  },
+  "variables": {},
   "resources": [
     {
       "name": "[parameters('deploymentName')]",
@@ -46,9 +45,7 @@
                   "memoryInGb": "1.5"
                 }
               },
-              "environmentVariables": [
-
-              ]
+              "environmentVariables": []
             }
           }
         ],
