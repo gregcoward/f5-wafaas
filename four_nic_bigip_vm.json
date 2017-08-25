@@ -175,7 +175,7 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -185,7 +185,7 @@
           {
             "name": "ipconfig2",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -195,7 +195,7 @@
           {
             "name": "ipconfig3",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -205,7 +205,7 @@
           {
             "name": "ipconfig4",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -215,7 +215,7 @@
           {
             "name": "ipconfig5",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -225,7 +225,7 @@
           {
             "name": "ipconfig6",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -235,7 +235,7 @@
           {
             "name": "ipconfig7",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -245,7 +245,7 @@
           {
             "name": "ipconfig8",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -255,7 +255,7 @@
           {
             "name": "ipconfig9",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
@@ -265,7 +265,7 @@
           {
             "name": "ipconfig10",
             "properties": {
-              "primary": true,
+              "primary": false,
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
