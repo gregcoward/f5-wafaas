@@ -1,0 +1,1033 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "f5Name": {
+      "type": "string",
+      "defaultValue": "bigip",
+      "metadata": {
+        "description": "The Unique Name of the BIG-IP instance, that will be used for the Public DNS Name of the Public IP."
+      }
+    }
+  },
+  "variables": {
+    "f5publicIPName": "[concat(parameters('f5Name'),'-IP')]",
+    "loadBalancerName": "[concat(parameters('f5Name'),'-ALB')]"    
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "tags": {
+        "displayName": "Public IP Address"
+      },
+      "type": "Microsoft.Network/publicIPAddresses",
+      "copy": {
+        "count": 50,
+        "name": "pipcopy"
+      },
+      "name": "[concat(variables('f5publicIPName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(parameters('f5Name'),'ip',copyIndex())]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "tags": {
+        "displayName": "Azure Load Balancer 0"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),0)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),1)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),2)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),3)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),4)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),5)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),6)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),7)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),8)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),9)]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('loadBalancerName'),'0')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd0",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),0))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd1",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),1))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd2",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),2))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd3",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),3))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd4",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),4))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd5",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),5))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd6",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),6))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd7",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),7))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd8",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),8))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd9",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),9))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [],
+        "loadBalancingRules": [],
+        "probes": [
+          {
+            "name": "lbprobe880",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 880,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe881",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 881,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe882",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 882,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe883",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 883,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe884",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 884,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe885",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 885,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe886",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 886,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe887",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 887,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe888",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 888,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe889",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 889,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          }
+        ]
+      }      
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "tags": {
+        "displayName": "Azure Load Balancer 1"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),10)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),11)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),12)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),13)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),14)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),15)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),16)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),17)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),18)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),19)]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('loadBalancerName'),'1')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd10",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),10))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd11",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),11))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd12",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),12))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd13",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),13))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd14",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),14))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd15",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),15))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd16",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),16))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd17",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),17))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd18",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),18))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd19",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),19))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [],
+        "loadBalancingRules": [],
+        "probes": [
+          {
+            "name": "lbprobe8810",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8810,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8811",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8811,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8812",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8812,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8813",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8813,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8814",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8814,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8815",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8815,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8816",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8816,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8817",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8817,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8818",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8818,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8819",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8819,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          }
+        ]
+      }      
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "tags": {
+        "displayName": "Azure Load Balancer 2"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),20)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),21)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),22)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),23)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),24)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),25)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),26)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),27)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),28)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),29)]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('loadBalancerName'),'2')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd20",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),20))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd21",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),21))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd22",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),22))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd23",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),23))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd24",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),24))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd25",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),25))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd26",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),26))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd27",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),27))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd28",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),28))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd29",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),29))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [],
+        "loadBalancingRules": [],
+        "probes": [
+          {
+            "name": "lbprobe8820",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8820,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8821",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8821,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8822",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8822,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8823",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8823,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8824",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8824,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8825",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8825,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8826",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8826,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8827",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8827,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8828",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8828,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8829",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8829,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          }
+        ]
+      }      
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "tags": {
+        "displayName": "Azure Load Balancer 3"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),30)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),31)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),32)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),33)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),34)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),35)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),36)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),37)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),38)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),39)]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('loadBalancerName'),'3')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd30",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),30))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd31",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),31))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd32",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),32))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd33",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),33))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd34",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),34))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd35",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),35))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd36",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),36))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd37",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),37))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd38",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),38))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd39",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),39))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [],
+        "loadBalancingRules": [],
+        "probes": [
+          {
+            "name": "lbprobe8830",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8830,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8831",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8831,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8832",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8832,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8833",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8833,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8834",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8834,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8835",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8835,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8836",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8836,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8837",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8837,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8838",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8838,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8839",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8839,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          }
+        ]
+      }      
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/loadBalancers",
+      "tags": {
+        "displayName": "Azure Load Balancer 4"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),40)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),41)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),42)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),43)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),44)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),45)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),46)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),47)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),48)]",
+        "[concat('Microsoft.Network/publicIPAddresses/', variables('f5publicIPName'),49)]"
+      ],
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('loadBalancerName'),'4')]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd40",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),40))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd41",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),41))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd42",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),42))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd43",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),43))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd44",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),44))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd45",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),45))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd46",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),46))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd47",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),47))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd48",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),48))]"
+              }
+            }
+          },
+          {
+            "name": "loadBalancerFrontEnd49",
+            "properties": {
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('f5publicIPName'),49))]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [],
+        "loadBalancingRules": [],
+        "probes": [
+          {
+            "name": "lbprobe8840",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8840,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8841",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8841,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8842",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8842,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8843",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8843,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8844",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8844,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8845",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8845,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8846",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8846,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8847",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8847,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8848",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8848,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          },
+          {
+            "name": "lbprobe8849",
+            "properties": {
+              "protocol": "Tcp",
+              "port": 8849,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            }            
+          }
+        ]
+      }      
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "deploymentName": {
+    "depName": {
       "type": "string"
     },
     "mode": {
@@ -41,29 +41,16 @@
   },
   "resources": [
     {
-      "name": "[concat('Deployment',parameters('deploymentName'))]",
-      "tags": {
-        "displayName": "Availability Set"
-      },
-      "type": "Microsoft.Compute/availabilitySets",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-05-01-preview",
-      "properties": {
-        "platformUpdateDomainCount": 1,
-        "platformFaultDomainCount": 1
-      }
-    },
-    {
       "apiVersion": "2016-06-01",
-      "name": "[concat('DeploymentCall',parameters('deploymentName'))]",
+      "name": "[concat('DeploymentCall',parameters('depName'))]",
       "type": "Microsoft.Resources/deployments",
       "dependsOn": [
-        "[concat('Microsoft.Compute/availabilitySets/','Deployment',parameters('deploymentName'))]"
+        "[concat('Microsoft.Compute/availabilitySets/','Deployment',parameters('depName'))]"
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('https://f5wafaasfunction.azurewebsites.net/api/HttpTriggerPowerShell1?code=c/ijEsUGE71T1pWa7G56DSYa6xla6OuPDBcmlUnlokdjK/wMG4Ddww==&subname=',variables('subscription'),'&rgname=',variables('resourceGroup'),'&depname=',parameters('deploymentName'),'&mode=',parameters('mode'),'&appfqdn=',parameters('appFQDN'),'&appport=',parameters('appPort'),'&applevel=',parameters('appLevel'),'&apptype=',parameters('appType'))]",
+          "uri": "[concat('https://f5wafaasfunction.azurewebsites.net/api/HttpTriggerPowerShell1?code=c/ijEsUGE71T1pWa7G56DSYa6xla6OuPDBcmlUnlokdjK/wMG4Ddww==&subname=',variables('subscription'),'&rgname=',variables('resourceGroup'),'&depname=',parameters('depName'),'&mode=',parameters('mode'),'&appfqdn=',parameters('appFQDN'),'&appport=',parameters('appPort'),'&applevel=',parameters('appLevel'),'&apptype=',parameters('appType'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

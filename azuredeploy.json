@@ -98,17 +98,10 @@
     },
     "numberOFBIGIPs": {
       "type": "int",
-      "defaultValue": 5,
+      "defaultValue": 10,
       "metadata": {
         "description": "The total number of BIG-IP's (Up to 4) you want to deploy. If you chose no from above, please select 1."
-      },
-      "allowedValues": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ]
+      }
     },
     "cluster": {
       "type": "string",
@@ -119,35 +112,6 @@
       "allowedValues": [
         "Yes",
         "No"
-      ]
-    },
-    "numberOfAdditionalInterfaces": {
-      "type": "string",
-      "defaultValue": "0",
-      "metadata": {
-        "description": "By default three interfaces are deployed, (MGMT, External, Internal).  If the VM instance that you have chosen supports more than three, you can specify the additional number of NIC's here.  So if you want to have 4, you would specify 1 here.  Zero, means only 3 NIC's will be deployed."
-      },
-      "allowedValues": [
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5"
-      ]
-    },
-    "numberOfPublicIPAddresses": {
-      "type": "string",
-      "defaultValue": "1",
-      "metadata": {
-        "description": "By default one Public IP address is deployed.  Select up to 5 additional Public IP addresses to be deployed with these BIG-IP's."
-      },
-      "allowedValues": [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5"
       ]
     },
     "licenseKeys" : {
@@ -200,21 +164,6 @@
       "13.0.0": "13.0.021"
     },
     "templateLocationPrefix": "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/",
-    "bigipHash": {
-      "0": "[concat(variables('templateLocationPrefix'),'three_nic_bigip_vm.json')]",
-      "1": "[concat(variables('templateLocationPrefix'),'four_nic_bigip_vm.json')]",
-      "2": "[concat(variables('templateLocationPrefix'),'five_nic_bigip_vm.json')]",
-      "3": "[concat(variables('templateLocationPrefix'),'six_nic_bigip_vm.json')]",
-      "4": "[concat(variables('templateLocationPrefix'),'seven_nic_bigip_vm.json')]",
-      "5": "[concat(variables('templateLocationPrefix'),'eight_nic_bigip_vm.json')]"
-    },
-    "publiciphash" : {
-      "1": "[concat(variables('templateLocationPrefix'),'one_pip.json')]",
-      "2": "[concat(variables('templateLocationPrefix'),'two_pip.json')]",
-      "3": "[concat(variables('templateLocationPrefix'),'three_pip.json')]",
-      "4": "[concat(variables('templateLocationPrefix'),'four_pip.json')]",
-      "5": "[concat(variables('templateLocationPrefix'),'five_pip.json')]"
-    },
     "onboardMap" : {
       "BYOL": "[concat(variables('templateLocationPrefix'),'byol_onboarding.json')]",
       "Hourly": "[concat(variables('templateLocationPrefix'),'hourly_onboarding.json')]"
@@ -276,7 +225,7 @@
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "880",
+              "destinationPortRange": "880-8850",
               "protocol": "Tcp",
               "direction": "Inbound",
               "access": "Allow"
@@ -290,7 +239,7 @@
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "8443",
+              "destinationPortRange": "840-8450",
               "protocol": "Tcp",
               "direction": "Inbound",
               "access": "Allow"
@@ -352,7 +301,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('publiciphash')[parameters('numberOfPublicIPAddresses')]]",
+          "uri": "[concat(variables('templateLocationPrefix'),'ten_pip.json')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -373,7 +322,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('bigipHash')[parameters('numberOfAdditionalInterfaces')]]",
+          "uri": "[concat(variables('templateLocationPrefix'),'four_nic_bigip.json')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

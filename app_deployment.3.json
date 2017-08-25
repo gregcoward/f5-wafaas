@@ -24,40 +24,33 @@
   "variables": {},
   "resources": [
     {
-      "name": "[parameters('depmentName')]",
-      "type": "Microsoft.ContainerInstance/containerGroups",
-      "apiVersion": "2017-08-01-preview",
-      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-05-10",
+      "name": "[concat('DeploymentCall',parameters('depmentName'))]",
+      "type": "Microsoft.Resources/deployments",
       "properties": {
-        "containers": [
-          {
-            "name": "[parameters('depmentName')]",
-            "properties": {
-              "image": "ceregousa/ubuntu-git",
-              "ports": [
-                {
-                  "port": "80"
-                }
-              ],
-              "resources": {
-                "requests": {
-                  "cpu": "1.0",
-                  "memoryInGb": "1.5"
-                }
-              },
-              "environmentVariables": []
-            }
-          }
-        ],
-        "osType": "Linux",
-        "ipAddress": {
-          "type": "Public",
-          "ports": [
-            {
-              "protocol": "tcp",
-              "port": "80"
-            }
-          ]
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "name": "[concat('DeploymentCall',parameters('depmentName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/availabilitySets/','Deployment',parameters('depmentName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
         }
       }
     }

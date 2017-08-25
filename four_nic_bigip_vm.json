@@ -169,12 +169,107 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnet-idExternal')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd')]"
-                }
-              ]          
+              }         
+            }
+          },
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig2",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig3",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig4",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig5",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig6",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig7",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig8",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig9",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
+            }
+          },
+          {
+            "name": "ipconfig10",
+            "properties": {
+              "primary": true,
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnet-idExternal')]"
+              }         
             }
           }
         ]
@@ -328,10 +423,5 @@
       }
     }
   ],
-  "outputs": {
-    "managementurl": {
-      "type": "string",
-      "value": "[concat('https://',reference(resourceId('Microsoft.Network/publicIPAddresses/',concat(parameters('f5Name'),'mgmt0')),'2015-05-01-preview').dnsSettings.fqdn)]"
-    }
-  }
+  "outputs": {}
 }
