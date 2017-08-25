@@ -368,9 +368,5 @@
     }
   ],
   "outputs": {
-    "management-url": {
-      "type": "string",
-      "value": "[reference('BIGIPTemplate').outputs.managementurl.value]"
-    }
   }
 }
