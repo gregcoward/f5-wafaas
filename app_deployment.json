@@ -33,47 +33,7 @@
     "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]"
   },
   "resources": [
-    {
-      "apiVersion": "2016-09-01",
-      "tags": {
-        "displayName": "External NIC"
-      },
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('externalNICNamePrefix'), parameters('f5Number'))]",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "networkSecurityGroup": {
-          "id": "[variables('nsgID')]"
-        },
-        "enableIPForwarding": true,
-        "ipConfigurations": [
-          {
-            "name": "ipconfig0",
-            "properties": {
-              "primary": true,
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnet-idExternal')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID'), '/backendAddressPools/', 'loadBalancerBackEnd')]"
-                }
-              ]          
-            }
-          },
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnet-idExternal')]"
-              }        
-            }
-          }
-        ]
-      }
-    }
+    
   ],
   "outputs": {
   }
