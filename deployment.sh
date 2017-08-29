@@ -62,15 +62,23 @@ fi
 
 # deploy logging profiles
 # profile names
+deployment_name="azure-log"
 asm_log_name="/Common/${deployment}-${oms_workspace}.app/${deployment}-${oms_workspace}_lp_asm_logging_offbox"
 dos_log_name="/Common/${deployment}-${oms_workspace}.app/${deployment}-${oms_workspace}_lp_l7dos_logging_offbox"
 local_log_name="Log illegal requests"
 
-response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d '{"name":"'"$deployment"'-'"$oms_workspace"'","partition":"Common","deviceGroup":"none","strictUpdates":"disabled","template":"/Common/f5.asm_log_creator_beta","trafficGroup":"none","variables":[{"name":"variables__key","encrypted":"no","value":"'"$oms_key"'"},{"name":"variables__workspace","encrypted":"no","value":"'"$oms_workspace"'"}]}' -o /dev/null)
+#check for existence of previously deployed logging app
+response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X GET -H "Content-Type: application/json" https://$host:$mgmt_port/mgmt/tm/sys/application/service/~Common~$deployment_name.app~$deployment_name -o /dev/null)
 
 if [[ $response_code != 200  ]]; then
-     echo "Failed to install logging profiles; exiting with response code '"$response_code"'"
-     exit
+     response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://$host:$mgmt_port/mgmt/tm/sys/application/service/ -d '{"name":"'"$deployment_name"'","partition":"Common","deviceGroup":"'"$device_group"'","strictUpdates":"disabled","template":"/Common/f5.asm_log_creator_t2","trafficGroup":"none"}' -o /dev/null)
+
+     if [[ $response_code != 200  ]]; then
+          echo "Failed to install logging profiles; exiting with response code '"$response_code"'"
+          exit 1
+     fi
+else
+     echo "Logging deployment already exists, continuing deployment"
 fi
 
 # pre-create node
