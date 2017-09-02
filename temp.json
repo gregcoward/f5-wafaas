@@ -1,0 +1,44 @@
+{
+    "name": "100",
+    "kind": "tm:net:route-domain:route-domaincollectionstate",
+    "selfLink": "https://localhost/mgmt/tm/net/route-domain?ver=12.1.2",
+    "items": [
+        {
+            "kind": "tm:net:route-domain:route-domainstate",
+            "name": "slot1",
+            "partition": "Common",
+            "fullPath": "/Common/slot1",
+            "generation": 69,
+            "selfLink": "https://localhost/mgmt/tm/net/route-domain/~Common~slot1?ver=12.1.2",
+            "connectionLimit": 0,
+            "id": 100,
+            "strict": "enabled"
+        }
+    ]
+}
+
+{
+    "kind": "tm:sys:folder:foldercollectionstate",
+    "selfLink": "https://localhost/mgmt/tm/sys/folder?ver=12.1.2",
+    "items": [
+        {
+            "kind": "tm:sys:folder:folderstate",
+            "name": "app2",
+            "subPath": "/",
+            "fullPath": "/app2",
+            "generation": 79,
+            "selfLink": "https://localhost/mgmt/tm/sys/folder/~app2?ver=12.1.2",
+            "deviceGroup": "none",
+            "hidden": "false",
+            "inheritedDevicegroup": "true",
+            "inheritedTrafficGroup": "true",
+            "noRefCheck": "false",
+            "trafficGroup": "/Common/traffic-group-1",
+            "trafficGroupReference": {
+                "link": "https://localhost/mgmt/tm/cm/traffic-group/~Common~traffic-group-1?ver=12.1.2"
+            }
+        }
+    ]
+}
+
+{"name":"app4","partition":"slot4","deviceGroup":"none","strictUpdates":"disabled","template":"/Common/f5.asm_log_creator_beta","trafficGroup":"none","variables":[{"name":"variables__key","encrypted":"no","value":"YZi6RA5jCqWV8oTvYaGSHNPzJc+9vHNjcdZzEJPMNhj+0rWfgOqPJB1YUuYw3nLBh0XGRKPPlroYvRANZVeygQ=="},{"name":"variables__workspace","encrypted":"no","value":"0f676980-a32a-47a8-82c4-b84b24a938d3"},{"name":"variables__partition","encrypted":"no","value":"slot4"},{"name":"variables__routedomain","encrypted":"no","value":101}]}

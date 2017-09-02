@@ -36,6 +36,18 @@
     "appPort": {
       "type": "string"
     },
+    "omsWorkspaceId":{
+      "type": "string",
+      "defaultValue": "0f676980-a32a-47a8-82c4-b84b24a938d3"
+    },
+    "omsWorkspaceKey": {
+      "type": "string",
+      "defaultValue": "YZi6RA5jCqWV8oTvYaGSHNPzJc+9vHNjcdZzEJPMNhj+0rWfgOqPJB1YUuYw3nLBh0XGRKPPlroYvRANZVeygQ=="
+    },
+    "slotName": {
+      "type": "string",
+      "defaultValue": "slot1"
+    },
     "appType": {
       "type": "string",
       "defaultValue": "linux",
@@ -71,7 +83,7 @@
           ]
         },
       "protectedSettings": {
-          "commandToExecute": "[concat('/bin/bash -x /var/lib/waagent/custom-script/download/0/deployment.sh -m ', parameters('mode'), ' -d ', parameters('deploymentName'), ' -n ', parameters('appFQDN'), ' -h ', parameters('appPort'), ' -s https -t ', parameters('appType'), ' -l ',parameters('appLevel'),' -a NOT_SPECIFIED -w 0f676980-a32a-47a8-82c4-b84b24a938d3 -k YZi6RA5jCqWV8oTvYaGSHNPzJc+9vHNjcdZzEJPMNhj+0rWfgOqPJB1YUuYw3nLBh0XGRKPPlroYvRANZVeygQ== -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', parameters('newVIP'))]"
+          "commandToExecute": "[concat('/bin/bash -x /var/lib/waagent/custom-script/download/0/deployment.sh -m ', parameters('mode'), ' -d ', parameters('deploymentName'), ' -n ', parameters('appFQDN'), ' -h ', parameters('appPort'), ' -s https -t ', parameters('appType'), ' -l ',parameters('appLevel'),' -a NOT_SPECIFIED -b ', parameters('slotName'),' -w ',parameters('omsWorkspaceId'),' -k ',parameters('omsWorkspaceKey'),' -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', parameters('newVIP'))]"
         }
         }
       }

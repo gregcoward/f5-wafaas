@@ -114,8 +114,36 @@ do
   fi
   sleep 10
 done
-
 wait
+
+## Build all slots
+## Create 10 Route Domains
+
+for domain in 100 101 102 103 104 105 106 107 108 109
+do
+  response_code=$(curl -sku admin:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/net/route-domain -d '{"name":"'${domain}'"}' -o /dev/null)
+  if [[ ${response_code} != 200  ]]; then
+    echo "Failed to create Route Domain ${domain}; exiting with response code ${response_code}"
+    exit ${response_code}
+  else
+    echo "Created Route Domain ${domain}."
+  fi
+done
+
+## Create 10 Partitions
+
+domainnum=100
+for partition in slot1 slot2 slot3 slot4 slot5 slot6 slot7 slot8 slot9 slot10
+do
+  response_code=$(curl -sku admin:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/auth/partition -d '{"name":"'${parttion}'", "defaultRouteDomain": "'${domainnum}'"}' -o /dev/null)
+  if [[ ${response_code} != 200  ]]; then
+    echo "Failed to create Partition ${partition}; exiting with response code ${response_code}"
+    exit ${response_code}
+  else
+    ((domainnum++))
+    echo "Created Partition ${partition}."
+  fi
+done
 
 ## Fix for v12 API disconnect
 if [ ${version} == "12.1.2" ]; then
