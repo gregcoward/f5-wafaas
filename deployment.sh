@@ -71,16 +71,21 @@ if [[ $pool_member =~ $IP_REGEX ]]; then
     response_json=$(curl -sku $user:$passwd -X GET -H "Content-Type: application/json" https://localhost/mgmt/tm/ltm/node | jq .items[].address )
     if [[ $response_json != *$pool_member* ]]; then
         response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/ltm/node -d '{"name": "'"$pool_member"'","partition": "'"Common"'","address": "'"$pool_member"'"}' -o /dev/null)
+    else
+        response_code=200
     fi
 else
     response_json=$(curl -sku $user:$passwd -X GET -H "Content-Type: application/json" https://localhost/mgmt/tm/ltm/node | jq .items[].fqdn.tmName )
     if [[ $response_json != *$pool_member* ]]; then
         response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/ltm/node -d '{"name": "'"$pool_member"'","partition": "'"Common"'","fqdn": {"autopopulate": "enabled","tmName": "'"$pool_member"'"}}' -o /dev/null)
+    else
+        response_code=200
     fi
 fi
 
 if [[ $response_code != 200  ]]; then
      echo "Failed to create node; with response code '"$response_code"'"
+     exit $response_code
 fi
 
 sleep 10
