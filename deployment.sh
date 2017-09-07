@@ -52,9 +52,8 @@ fi
 
 # deploy logging profiles
 # profile names
-deployment_name="$deployment-azure-log"
-asm_log_name="/Common/${deployment}-${oms_workspace}.app/${deployment}-${oms_workspace}_lp_asm_logging_offbox"
-dos_log_name="/Common/${deployment}-${oms_workspace}.app/${deployment}-${oms_workspace}_lp_l7dos_logging_offbox"
+asm_log_name="/Common/${deployment}-${oms_workspace}_lp_asm_logging_offbox"
+dos_log_name="/Common/${deployment}-${oms_workspace}_lp_l7dos_logging_offbox"
 local_log_name="Log illegal requests"
 
 response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d '{"name":"'"$deployment"'-'"$oms_workspace"'","partition":"'"Common"'","deviceGroup":"none","strictUpdates":"disabled","template":"/Common/f5.asm_log_creator_beta","trafficGroup":"none","variables":[{"name":"variables__key","encrypted":"no","value":"'"$oms_key"'"},{"name":"variables__workspace","encrypted":"no","value":"'"$oms_workspace"'"},{"name":"variables__loggingnode","encrypted":"no","value":"'"$logging_node"'"}]}' -o /dev/null)
@@ -92,18 +91,11 @@ sleep 10
 
 # deploy unencrypted application
 if [[ $mode == "http" || $mode == "http-https" ]]; then        
-     response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d '{"name":"'"$deployment"'-'"$vs_http_port"'","partition":"'"Common"'","deviceGroup":"none","strictUpdates":"disabled","template":"/Common/f5.http.v1.2.0rc4","trafficGroup":"none","tables":[{"name":"pool__hosts","columnNames":["name"],"rows":[{"row":["'"$deployment"'"]}]},{"name":"pool__members","columnNames":["addr","port","connection_limit"],"rows":[{"row":["'"$pool_member"'","'"$pool_http_port"'","0"]}]},{"name":"server_pools__servers"}],"variables":[{"name":"asm__security_logging","encrypted":"no","value":"Log illegal requests"},{"name":"asm__use_asm","encrypted":"no","value":"'"$ltm_policy_name"'"},{"name":"monitor__monitor","encrypted":"no","value":"/'"Common"'/http"},{"name":"pool__addr","encrypted":"no","value":"'"$vipip"'"},{"name":"pool__mask","encrypted":"no","value":"255.255.255.255"},{"name":"pool__persist","encrypted":"no","value":"/#cookie#"},{"name":"pool__port","encrypted":"no","value":"'"$vs_http_port"'"},{"name":"pool__profiles","encrypted":"no","value":"'"$l7dos_name"'"},{"name":"ssl__mode","encrypted":"no","value":"no_ssl"}]}' -o /dev/null)
+     response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X POST -H "Content-Type: application/json" https://localhost/mgmt/tm/sys/application/service/ -d '{"name":"'"$deployment"'-'"$vs_http_port"'","partition":"Common","deviceGroup":"none","strictUpdates":"disabled","template":"/Common/f5.http.v1.2.0rc7","trafficGroup":"none","tables":[{"name":"pool__hosts","columnNames":["name"],"rows":[{"row":["'"$deployment"'"]}]},{"name":"pool__members","columnNames":["addr","port","connection_limit"],"rows":[{"row":["'"$pool_member"'","'"$pool_http_port"'","0"]}]},{"name":"server_pools__servers"}],"lists":[{"name":"asm__security_logging","value":["'"$asm_log_name"'","'"$local_log_name"'", "'"$dos_log_name"'"]}],"variables":[{"name":"asm__use_asm","value":"'"$ltm_policy_name"'"},{"name":"monitor__monitor","value":"/Common/http"},{"name":"pool__addr","value":"'"$vipip"'"},{"name":"pool__mask","value":"255.255.255.255"},{"name":"pool__persist","value":"/#cookie#"},{"name":"pool__port","value":"'"$vs_http_port"'"},{"name":"pool__profiles","value":"'"$l7dos_name"'"},{"name":"ssl__mode","value":"no_ssl"}]}' -o /dev/null)
 
      if [[ $response_code != 200  ]]; then
           echo "Failed to deploy unencrypted application; exiting with response code '"$response_code"'"
-          exit
-     else
-          response_code=$(curl -sku $user:$passwd -w "%{http_code}" -X PATCH -H "Content-Type: application/json" https://localhost/mgmt/tm/ltm/virtual/~Common~${deployment}-${vs_http_port}.app~${deployment}-${vs_http_port}_vs -d '{"securityLogProfiles":["'"$asm_log_name"'" "'"$dos_log_name"'"]}' -o /dev/null)
-          
-          if [[ $response_code != 200  ]]; then
-               echo "Failed to modify logging profiles; exiting with response code '"$response_code"'"
-               exit
-          fi
+          exit ${response_code}
      fi
 fi
 
