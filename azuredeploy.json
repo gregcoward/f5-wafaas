@@ -98,7 +98,7 @@
     },
     "numberOFBIGIPs": {
       "type": "int",
-      "defaultValue": 10,
+      "defaultValue": 6,
       "metadata": {
         "description": "The total number of BIG-IP's (Up to 4) you want to deploy. If you chose no from above, please select 1."
       }

@@ -53,7 +53,7 @@
              "[concat('https://raw.githubusercontent.com/F5Networks/f5-cloud-libs/', variables('f5CloudLibsTag'), '/dist/f5-cloud-libs.tar.gz')]",
              "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/deployment.sh",
              "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/f5.asm_log_creator_beta.tmpl",
-             "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/f5.http.v1.2.0rc4.tmpl",
+             "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/f5.http.v1.2.0rc7.tmpl",
              "https://raw.githubusercontent.com/tstanley93/f5-wafaas/master/f5.policy_creator_beta.tmpl"
           ]
         },
