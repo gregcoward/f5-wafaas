@@ -60,6 +60,10 @@
         "medium",
         "high"
       ]
+    },
+    "loggingNode": {
+      "type": "string",
+      "defaultValue": "255.255.255.240"
     }
   },
   "variables": {
@@ -79,7 +83,7 @@
           ]
         },
       "protectedSettings": {
-          "commandToExecute": "[concat('/bin/bash -x /var/lib/waagent/custom-script/download/0/deployment.sh -m ', parameters('mode'), ' -d ', parameters('deploymentName'), ' -n ', parameters('appFQDN'), ' -h ', parameters('appPort'), ' -s https -t ', parameters('appType'), ' -l ',parameters('appLevel'),' -a NOT_SPECIFIED -w ',parameters('omsWorkspaceId'),' -k ',parameters('omsWorkspaceKey'),' -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', parameters('newVIP'))]"
+          "commandToExecute": "[concat('/bin/bash -x /var/lib/waagent/custom-script/download/0/deployment.sh -m ', parameters('mode'), ' -d ', parameters('deploymentName'), ' -n ', parameters('appFQDN'), ' -h ', parameters('appPort'), ' -s https -t ', parameters('appType'), ' -l ',parameters('appLevel'), ' -b ',parameters('loggingNode'),' -a NOT_SPECIFIED -w ',parameters('omsWorkspaceId'),' -k ',parameters('omsWorkspaceKey'),' -u ', parameters('adminUsername'), ' -p ', parameters('adminPassword'), ' -v ', parameters('newVIP'))]"
         }
         }
       }
