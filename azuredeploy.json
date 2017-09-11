@@ -301,7 +301,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(variables('templateLocationPrefix'),'thirty_pip.json')]",
+          "uri": "[concat(variables('templateLocationPrefix'),'ten_pip.json')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
