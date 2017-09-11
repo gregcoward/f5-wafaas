@@ -112,7 +112,7 @@ sys application template /Common/f5.policy_creator_beta {
    set tps_low "ip-maximum-tps 100 ip-minimum-tps 100 url-maximum-tps 800 url-minimum-tps 800"
    set tps_medium "ip-maximum-tps 70 ip-minimum-tps 70 url-maximum-tps 500 url-minimum-tps 500"
    set tps_high "ip-maximum-tps 20 ip-minimum-tps 20 url-maximum-tps 100 url-minimum-tps 100"
-   set l7dos_name /Common/$deployment-l7dos
+   set l7dos_name $deployment-l7dos
 
    # array keys: $l7dos_level
    array set l7dos_arr {
@@ -134,7 +134,7 @@ sys application template /Common/f5.policy_creator_beta {
 			 heavy-urls \{ automatic-detection disabled protection disabled \} \
 			 [expr { $is_v12_0 ? "stress-based" : "latency-based" }] \{ mode blocking $tps_low \} \
 			 tps-based \{ mode blocking $tps_low \} $app_service \} \} \}]}
-		medium {[iapp::conf create security dos profile $l7dos_name \{ \
+		medium {[iapp::conf create security dos profile /Common/$l7dos_name \{ \
 			 $app_service \
 			 application replace-all-with \{ $l7dos_name \{ \
 			 bot-defense \{ mode disabled \} \
@@ -143,7 +143,7 @@ sys application template /Common/f5.policy_creator_beta {
 			 heavy-urls \{ automatic-detection disabled protection disabled \} \
 			 [expr { $is_v12_0 ? "stress-based" : "latency-based" }] \{ mode blocking $tps_medium \} \
 			 tps-based \{ mode blocking $tps_medium \} $app_service \} \} \}]}
-		high {[iapp::conf create security dos profile $l7dos_name \{ \
+		high {[iapp::conf create security dos profile /Common/$l7dos_name \{ \
 			 $app_service \
 			 application replace-all-with \{ $l7dos_name \{ \
 			 bot-defense \{ mode during-attacks \} \
