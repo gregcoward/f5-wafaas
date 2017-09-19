@@ -43,7 +43,13 @@
     },
     "additionalSubnets": {
       "type": "string"
-    }
+    },
+    "newStorageAccountName": {
+      "type": "string"
+    },
+    "newDiagStorageAccountName": {
+      "type": "string"
+    }     
   },
   "variables": {
     "intAddBigIPs": "[int(parameters('numberOFBIGIPs'))]",
@@ -52,8 +58,6 @@
     "externalNICNamePrefix": "[concat(parameters('f5Name'),'-externalnic')]",
     "internalNICNamePrefix": "[concat(parameters('f5Name'),'-internalnic')]",
     "additionNICNamePrefix": "[concat(parameters('f5Name'),'-nic')]",
-    "newStorageAccountName": "[concat(parameters('f5Name'),'store')]",
-    "newDiagStorageAccountName": "[concat(parameters('f5Name'),'diagstore')]",
     "vnetID": "[resourceId(parameters('vnetResourceGroupName'),'Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
     "subnet-idMGMT": "[concat(variables('vnetID'),'/subnets/',parameters('mgmtSubnetName'))]",
     "subnet-idExternal": "[concat(variables('vnetID'),'/subnets/',parameters('externalSubnetName'))]",
@@ -380,7 +384,7 @@
           "osDisk": {
             "name": "[concat(parameters('f5Name'), 'osDisk',copyIndex())]",
             "vhd": {
-              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/',variables('newStorageAccountName')),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob,variables('newStorageAccountName'),'/',parameters('f5Name'),copyIndex(),'.vhd')]"
+              "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/',parameters('newStorageAccountName')),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).primaryEndpoints.blob,variables('newStorageAccountName'),'/',parameters('f5Name'),copyIndex(),'.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -417,7 +421,7 @@
         "diagnosticsProfile": {
             "bootDiagnostics": {
                 "enabled": true, 
-                "storageUri": "[concat('http://',variables('newDiagStorageAccountName'),'.blob.core.windows.net')]"
+                "storageUri": "[concat('http://',parameters('newDiagStorageAccountName'),'.blob.core.windows.net')]"
             }
         }                
       }
